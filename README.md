@@ -1,1 +1,2 @@
-1. Répartition des tâches : 
+1. Répartition des tâches :
+2. Planning :
