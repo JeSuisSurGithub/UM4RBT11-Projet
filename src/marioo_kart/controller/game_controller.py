@@ -77,6 +77,9 @@ class GameController:
         if state == GameState.MENU:
             self.handle_menu_key(key)
 
+        if state == GameState.CIRCUIT: 
+            self.handle_menu_circuit(key)
+
     def handle_menu_key(self, key: int) -> None:
         """Gère les entrées clavier lorsque le jeu se trouve dans le menu principal.
 
@@ -86,10 +89,18 @@ class GameController:
             Constante de la touche Pygame enfoncée.
         """
         if key == pygame.K_RETURN:
-            self.model.load_circuit()
-            self.model.state = GameState.RACING
+            #self.model.load_circuit()
+            self.model.state = GameState.CIRCUIT
         elif key == pygame.K_ESCAPE:
             self.quit()
+
+    def handle_menu_circuit(self, key:int) -> None : 
+        if key == pygame.K_1: 
+            self.model.load_circuit1()
+            self.model.state = GameState.RACING
+        elif key == pygame.K_2: 
+            self.model.load_circuit2()
+            self.model.state = GameState.RACING
 
     def update(self) -> None:
         """Met à jour la logique du jeu à chaque image si la course est active."""

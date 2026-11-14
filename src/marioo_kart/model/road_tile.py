@@ -1,5 +1,5 @@
 import pygame
-from constants import TILE_SIZE
+from constants import TILE_SIZE, C1_COLOR, C2_COLOR
 
 
 class RoadTile:
@@ -28,6 +28,7 @@ class RoadTile:
         self.col = col
         self.row = row
         self.sprite: pygame.Surface | None = None
+        self.color : tuple | None
 
     def get_sprite(self, tile_size: int = TILE_SIZE) -> pygame.Surface:
         """Génère et renvoie la surface graphique représentant la tuile de route
@@ -45,7 +46,7 @@ class RoadTile:
         if self.sprite and self.sprite.get_width() == tile_size:
             return self.sprite
         surface = pygame.Surface((tile_size, tile_size))
-        surface.fill((80, 80, 90))
+        surface.fill(self.color)
         pygame.draw.rect(surface, (60, 60, 70), surface.get_rect(), 2)
 
         self.sprite = surface
