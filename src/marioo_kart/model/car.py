@@ -1,7 +1,8 @@
 import math
+import numpy as np
 import pygame
 from constants import (
-    CAR_ACCELERATION, CAR_BRAKE, CAR_WIDTH, CAR_HEIGHT, TILE_SIZE
+    CAR_ACCELERATION, SPEED_MAX, CAR_BRAKE, CAR_WIDTH, CAR_HEIGHT, TILE_SIZE
 )
 
 
@@ -47,9 +48,17 @@ class Car:
             Indique si la voiture accélère vers l'avant (True) ou vers l'arrière (False)
         """
         if forward:
-            self.speed += CAR_ACCELERATION
+            if self.speed < SPEED_MAX : 
+                self.speed += CAR_ACCELERATION
         else:
-            self.speed -= CAR_ACCELERATION
+            if self.speed > -SPEED_MAX : 
+                self.speed -= CAR_ACCELERATION
+
+    def steering(self, direction=True) -> None: 
+        if direction:
+            self.angle += 2
+        else:
+            self.angle -= 2
 
     def brake(self) -> None:
         """Applique les freins pour réduire la vitesse de la voiture
@@ -59,7 +68,8 @@ class Car:
     def update_position(self) -> None:
         """Met à jour la position verticale de la voiture en fonction de sa vitesse actuelle
         """
-        self.y += self.speed
+        self.x += self.speed*math.sin(-math.pi*self.angle/180)
+        self.y += self.speed*math.cos(-math.pi*self.angle/180)
 
     def build_sprite(self) -> pygame.Surface:
         """Crée et renvoie la surface graphique représentant la voiture

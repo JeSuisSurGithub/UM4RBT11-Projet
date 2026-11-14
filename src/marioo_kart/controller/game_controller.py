@@ -3,7 +3,7 @@ import sys
 from constants import (
     WINDOW_WIDTH, WINDOW_HEIGHT, FPS,
     GameState
-)
+    )
 from model.game_model import GameModel
 from view.game_view import GameView
 from controller.input_handler import InputHandler
@@ -57,12 +57,17 @@ class GameController:
 
     def handle_events(self) -> None:
         """Récupère et traite les événements de la file d'attente Pygame."""
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.quit()
 
             elif event.type == pygame.KEYDOWN:
                 self.handle_keydown(event.key)
+
+            else: 
+                self.model.nokey()
+                # Traite le cas ou on appui sur aucune touche 
 
     def handle_keydown(self, key: int) -> None:
         """Traite l'appui sur une touche spécifique en fonction de l'état actuel du jeu.
@@ -77,7 +82,7 @@ class GameController:
         if state == GameState.MENU:
             self.handle_menu_key(key)
 
-        if state == GameState.CIRCUIT: 
+        elif state == GameState.CIRCUIT: 
             self.handle_menu_circuit(key)
 
     def handle_menu_key(self, key: int) -> None:
@@ -124,10 +129,19 @@ class GameController:
         """
         if player_input['accelerate']:
             car.accelerate(forward=True)
+
         elif player_input['decelerate']:
             car.accelerate(forward=False)
+        
         if player_input['brake']:
             car.brake()
+
+        if player_input["right"]:
+            car.steering(direction=True)
+            car.get_rotated_sprite()
+        elif player_input["left"]:
+            car.steering(direction=False)
+            car.get_rotated_sprite()
 
     def render(self) -> None:
         """Dessine l'état actuel du jeu à l'écran via la vue."""

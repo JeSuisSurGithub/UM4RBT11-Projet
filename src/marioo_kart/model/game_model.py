@@ -25,7 +25,7 @@ class GameModel:
     
 
     def load_circuit1(self) -> None:
-        """Charge ou initialise le circuit du jeu sous forme d'une grille et fait apparaître la voiture"""
+        """Charge ou initialise le circuit (1) du jeu sous forme d'une grille et fait apparaître la voiture"""
         grid = [[RoadTile(col=col_idx, row=row_idx)
                 for row_idx in range(GRID_COLS)] for col_idx in range(GRID_ROWS)]
         
@@ -34,6 +34,7 @@ class GameModel:
         self.spawn_car()
 
     def load_circuit2(self) -> None:
+        """Charge le circuit (2) du jeu sous forme grille et fait apparaitre la voiture"""
         grid = [[RoadTile(col=col_idx, row=row_idx) for row_idx in range(GRID_COLS)]
                 for col_idx in range(GRID_ROWS)] 
 
@@ -51,3 +52,10 @@ class GameModel:
         if self.state != GameState.RACING or self.circuit is None:
             return
         self.car.update_position()
+
+    def nokey(self) ->None:
+        """Traite le cas ou aucune touche est appuyée durant la course (Racing = True)"""
+        if self.state != GameState.RACING or self.circuit is None:
+            return 
+        if self.car.speed != 0.0 : 
+            self.car.speed = 0.0
