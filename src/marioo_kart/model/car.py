@@ -1,5 +1,4 @@
 import math
-import numpy as np
 import pygame
 from constants import (
     CAR_ACCELERATION, SPEED_MAX, ANGLE_STEP, CAR_BRAKE, CAR_WIDTH, CAR_HEIGHT, TILE_SIZE
