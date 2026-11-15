@@ -9,6 +9,7 @@ def main():
 
     controller = GameController()
     controller.run()
+    #Lancer la boucle principale du jeu
 
     pygame.quit()
 

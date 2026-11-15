@@ -3,7 +3,7 @@ import sys
 from constants import (
     WINDOW_WIDTH, WINDOW_HEIGHT, FPS,
     GameState
-)
+    )
 from model.game_model import GameModel
 from view.game_view import GameView
 from controller.input_handler import InputHandler
@@ -57,12 +57,17 @@ class GameController:
 
     def handle_events(self) -> None:
         """Récupère et traite les événements de la file d'attente Pygame."""
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.quit()
 
             elif event.type == pygame.KEYDOWN:
                 self.handle_keydown(event.key)
+
+            #else: 
+                #self.model.nokey()
+                # Traite le cas ou on appui sur aucune touche 
 
     def handle_keydown(self, key: int) -> None:
         """Traite l'appui sur une touche spécifique en fonction de l'état actuel du jeu.
@@ -77,6 +82,9 @@ class GameController:
         if state == GameState.MENU:
             self.handle_menu_key(key)
 
+        elif state == GameState.CIRCUIT: 
+            self.handle_menu_circuit(key)
+
     def handle_menu_key(self, key: int) -> None:
         """Gère les entrées clavier lorsque le jeu se trouve dans le menu principal.
 
@@ -86,10 +94,14 @@ class GameController:
             Constante de la touche Pygame enfoncée.
         """
         if key == pygame.K_RETURN:
-            self.model.load_circuit()
-            self.model.state = GameState.RACING
+            #self.model.load_circuit()
+            self.model.state = GameState.CIRCUIT
         elif key == pygame.K_ESCAPE:
             self.quit()
+
+    def handle_menu_circuit(self, key:int) -> None :  
+        self.model.load_circuit(key)
+        self.model.state = GameState.RACING
 
     def update(self) -> None:
         """Met à jour la logique du jeu à chaque image si la course est active."""
@@ -113,10 +125,21 @@ class GameController:
         """
         if player_input['accelerate']:
             car.accelerate(forward=True)
+
         elif player_input['decelerate']:
             car.accelerate(forward=False)
+        
         if player_input['brake']:
             car.brake()
+
+        if player_input["right"]:   
+            car.get_rotated_sprite()
+            #t1 = pygame.time.get_ticks()
+            car.steering(direction=True)
+            
+        elif player_input["left"]:
+            car.get_rotated_sprite()
+            car.steering(direction=False)
 
     def render(self) -> None:
         """Dessine l'état actuel du jeu à l'écran via la vue."""
