@@ -1,8 +1,7 @@
 import math
-import numpy as np
 import pygame
 from constants import (
-    CAR_ACCELERATION, SPEED_MAX, ANGLE_STEP, CAR_BRAKE, CAR_WIDTH, CAR_HEIGHT, TILE_SIZE
+    CAR_ACCELERATION, SPEED_MAX, CAR_ANGULAR_ACCELRATION, CAR_BRAKE, CAR_WIDTH, CAR_HEIGHT, TILE_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH, CAR_ANGULAR_DECAY
 )
 
 
@@ -35,8 +34,9 @@ class Car:
         """
         self.x = start_col * TILE_SIZE + TILE_SIZE // 2
         self.y = start_row * TILE_SIZE + TILE_SIZE // 2
-        self.speed: float = 0.0
         self.angle: float = 0.0
+        self.speed: float = 0.0
+        self.angular_speed = 0.0
         self.sprite = self.build_sprite()
 
     def accelerate(self, forward=True) -> None:
@@ -54,11 +54,15 @@ class Car:
             if self.speed > -SPEED_MAX : 
                 self.speed -= CAR_ACCELERATION
 
-    def steering(self, direction=True) -> None: 
-        if direction:
-            self.angle += ANGLE_STEP
+    def steering(self, clockwise=True) -> None: 
+        if clockwise is None:
+            self.angular_speed /= CAR_ANGULAR_DECAY
+            if abs(self.angular_speed) < 1e-9:
+                self.angular_speed = 0.0
+        elif clockwise:
+            self.angular_speed += CAR_ANGULAR_ACCELRATION
         else:
-            self.angle -= ANGLE_STEP
+            self.angular_speed -= CAR_ANGULAR_ACCELRATION
 
     def brake(self) -> None:
         """Applique les freins pour réduire la vitesse de la voiture
@@ -70,6 +74,17 @@ class Car:
         """
         self.x += self.speed*math.sin(-math.pi*self.angle/180)
         self.y += self.speed*math.cos(-math.pi*self.angle/180)
+        self.angle += self.angular_speed
+        _, bounds = self.get_rotated_sprite()
+        if bounds.x < 0:
+            self.x = bounds.w
+        elif (bounds.left + bounds.w) > WINDOW_WIDTH:
+            self.x = WINDOW_WIDTH - bounds.w
+        if bounds.y < 0:
+            self.y = bounds.h
+        elif (bounds.top + bounds.h) > WINDOW_HEIGHT:
+            self.y = WINDOW_HEIGHT - bounds.h
+        print(self.angular_speed, self.x, self.y)
 
     def build_sprite(self) -> pygame.Surface:
         """Crée et renvoie la surface graphique représentant la voiture

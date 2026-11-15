@@ -82,8 +82,9 @@ class GameController:
         if state == GameState.MENU:
             self.handle_menu_key(key)
 
-        elif state == GameState.CIRCUIT: 
-            self.handle_menu_circuit(key)
+        elif state == GameState.CIRCUIT:
+            if key in [pygame.K_1, pygame.K_2]:
+                self.handle_menu_circuit(key)
 
     def handle_menu_key(self, key: int) -> None:
         """Gère les entrées clavier lorsque le jeu se trouve dans le menu principal.
@@ -94,12 +95,11 @@ class GameController:
             Constante de la touche Pygame enfoncée.
         """
         if key == pygame.K_RETURN:
-            #self.model.load_circuit()
             self.model.state = GameState.CIRCUIT
         elif key == pygame.K_ESCAPE:
             self.quit()
 
-    def handle_menu_circuit(self, key:int) -> None :  
+    def handle_menu_circuit(self, key:int) -> None :
         self.model.load_circuit(key)
         self.model.state = GameState.RACING
 
@@ -128,18 +128,20 @@ class GameController:
 
         elif player_input['decelerate']:
             car.accelerate(forward=False)
-        
+
         if player_input['brake']:
             car.brake()
 
-        if player_input["right"]:   
-            car.get_rotated_sprite()
-            #t1 = pygame.time.get_ticks()
-            car.steering(direction=True)
-            
+        if player_input["right"]:
+            # car.get_rotated_sprite()
+            car.steering(clockwise=True)
+
         elif player_input["left"]:
-            car.get_rotated_sprite()
-            car.steering(direction=False)
+            # car.get_rotated_sprite()
+            car.steering(clockwise=False)
+
+        else:
+            car.steering(clockwise=None)
 
     def render(self) -> None:
         """Dessine l'état actuel du jeu à l'écran via la vue."""
