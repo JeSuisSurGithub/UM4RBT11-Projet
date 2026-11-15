@@ -1,3 +1,4 @@
+import pygame
 from constants import GameState, GRID_ROWS, GRID_COLS, C1_COLOR, C2_COLOR
 from model.car import Car
 from model.circuit import Circuit
@@ -24,21 +25,15 @@ class GameModel:
         self.car: Car | None = None
     
 
-    def load_circuit1(self) -> None:
-        """Charge ou initialise le circuit (1) du jeu sous forme d'une grille et fait apparaître la voiture"""
+    def load_circuit(self, choice) -> None:
+        """Charge ou initialise le circuit (1 ou 2) du jeu sous forme d'une grille et fait apparaître la voiture"""
         grid = [[RoadTile(col=col_idx, row=row_idx)
                 for row_idx in range(GRID_COLS)] for col_idx in range(GRID_ROWS)]
-        
-        RoadTile.color = C1_COLOR
-        self.circuit = Circuit(grid=grid)
-        self.spawn_car()
+        if choice == pygame.K_1:
+            RoadTile.color = C1_COLOR
+        elif choice == pygame.K_2:
+            RoadTile.color = C2_COLOR
 
-    def load_circuit2(self) -> None:
-        """Charge le circuit (2) du jeu sous forme grille et fait apparaitre la voiture"""
-        grid = [[RoadTile(col=col_idx, row=row_idx) for row_idx in range(GRID_COLS)]
-                for col_idx in range(GRID_ROWS)] 
-
-        RoadTile.color = C2_COLOR
         self.circuit = Circuit(grid=grid)
         self.spawn_car()
         

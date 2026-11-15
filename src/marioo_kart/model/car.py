@@ -2,7 +2,7 @@ import math
 import numpy as np
 import pygame
 from constants import (
-    CAR_ACCELERATION, SPEED_MAX, CAR_BRAKE, CAR_WIDTH, CAR_HEIGHT, TILE_SIZE
+    CAR_ACCELERATION, SPEED_MAX, ANGLE_STEP, CAR_BRAKE, CAR_WIDTH, CAR_HEIGHT, TILE_SIZE
 )
 
 
@@ -56,9 +56,9 @@ class Car:
 
     def steering(self, direction=True) -> None: 
         if direction:
-            self.angle += 2
+            self.angle += ANGLE_STEP
         else:
-            self.angle -= 2
+            self.angle -= ANGLE_STEP
 
     def brake(self) -> None:
         """Applique les freins pour réduire la vitesse de la voiture

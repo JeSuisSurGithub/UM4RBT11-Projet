@@ -65,8 +65,8 @@ class GameController:
             elif event.type == pygame.KEYDOWN:
                 self.handle_keydown(event.key)
 
-            else: 
-                self.model.nokey()
+            #else: 
+                #self.model.nokey()
                 # Traite le cas ou on appui sur aucune touche 
 
     def handle_keydown(self, key: int) -> None:
@@ -99,13 +99,9 @@ class GameController:
         elif key == pygame.K_ESCAPE:
             self.quit()
 
-    def handle_menu_circuit(self, key:int) -> None : 
-        if key == pygame.K_1: 
-            self.model.load_circuit1()
-            self.model.state = GameState.RACING
-        elif key == pygame.K_2: 
-            self.model.load_circuit2()
-            self.model.state = GameState.RACING
+    def handle_menu_circuit(self, key:int) -> None :  
+        self.model.load_circuit(key)
+        self.model.state = GameState.RACING
 
     def update(self) -> None:
         """Met à jour la logique du jeu à chaque image si la course est active."""
@@ -136,12 +132,14 @@ class GameController:
         if player_input['brake']:
             car.brake()
 
-        if player_input["right"]:
+        if player_input["right"]:   
+            car.get_rotated_sprite()
+            #t1 = pygame.time.get_ticks()
             car.steering(direction=True)
-            car.get_rotated_sprite()
+            
         elif player_input["left"]:
-            car.steering(direction=False)
             car.get_rotated_sprite()
+            car.steering(direction=False)
 
     def render(self) -> None:
         """Dessine l'état actuel du jeu à l'écran via la vue."""
