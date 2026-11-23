@@ -1,7 +1,7 @@
 import math
 import pygame
 from constants import (
-    CAR_ACCELERATION, CAR_SPEED_MAX, CAR_ANGULAR_ACCELRATION, CAR_BRAKE, CAR_WIDTH, CAR_HEIGHT, TILE_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH, CAR_ANGULAR_DECAY, CAR_SPEED_DECAY
+    CAR_ACCEL, CAR_SPEED_MAX, CAR_ANGULAR_ACCEL, CAR_BRAKE, CAR_WIDTH, CAR_HEIGHT, TILE_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH, CAR_ANGULAR_DECAY, CAR_SPEED_DECAY
 )
 
 
@@ -35,7 +35,7 @@ class Car:
         self.x = start_col * TILE_SIZE + TILE_SIZE // 2
         self.y = start_row * TILE_SIZE + TILE_SIZE // 2
         self.angle: float = -math.pi/2
-        self.angular_speed: float = 0.0
+        self.agl_speed: float = 0.0
         self.speed: pygame.Vector2 = pygame.Vector2(0.0, 0.0)
         self.sprite = self.build_sprite()
 
@@ -57,28 +57,30 @@ class Car:
             if self.speed.magnitude() < 1e-3:
                 self.speed = pygame.Vector2(0.0, 0.0)
         elif forward:
-            self.speed += CAR_ACCELERATION * forward_vector
+            self.speed += CAR_ACCEL * forward_vector
         else:
-            self.speed -= CAR_ACCELERATION * forward_vector
+            self.speed -= CAR_ACCEL * forward_vector
 
         if self.speed.length_squared() > 0:
             self.speed.clamp_magnitude_ip(CAR_SPEED_MAX)
 
     def steering(self, clockwise=True) -> None:
         if clockwise is None:
-            self.angular_speed /= CAR_ANGULAR_DECAY
+            self.agl_speed /= CAR_ANGULAR_DECAY
         elif clockwise:
-            self.angular_speed += CAR_ANGULAR_ACCELRATION
+            self.agl_speed += CAR_ANGULAR_ACCEL
         else:
-            self.angular_speed -= CAR_ANGULAR_ACCELRATION
+            self.agl_speed -= CAR_ANGULAR_ACCEL
 
     def brake(self) -> None:
-        """Applique les freins pour réduire la vitesse de la voiture
+        """
+            Applique les freins pour réduire la vitesse de la voiture
         """
         self.speed /= CAR_BRAKE
 
     def update_position(self) -> None:
-        """Met à jour la position verticale de la voiture en fonction de sa vitesse actuelle
+        """
+            Met à jour la position verticale de la voiture en fonction de sa vitesse actuelle
         """
         rad = math.radians(self.angle)
         forward= pygame.Vector2(math.sin(rad), -math.cos(rad))
@@ -96,7 +98,7 @@ class Car:
         lateral_grip = 0.03
         drift_threshold = 0.22
         snap_threshold = 0.01
-        ## 
+        ##
 
         if abs(v_right) <= snap_threshold:
             v_right = 0.0
@@ -107,7 +109,7 @@ class Car:
 
         self.speed = forward * v_forward + right * v_right
 
-        self.angle += self.angular_speed
+        self.angle += self.agl_speed
         self.x += self.speed.x
         self.y += self.speed.y
 
