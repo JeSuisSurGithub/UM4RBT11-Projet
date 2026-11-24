@@ -128,6 +128,8 @@ class GameController:
 
         elif player_input['decelerate']:
             car.accelerate(forward=False)
+        else:
+            car.accelerate(forward=None)
 
         if player_input['brake']:
             car.brake()
