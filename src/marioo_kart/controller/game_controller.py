@@ -3,7 +3,7 @@ import sys
 from constants import (
     WINDOW_WIDTH, WINDOW_HEIGHT, FPS,
     GameState
-    )
+)
 from model.game_model import GameModel
 from view.game_view import GameView
 from controller.input_handler import InputHandler
@@ -57,7 +57,7 @@ class GameController:
 
     def handle_events(self) -> None:
         """Récupère et traite les événements de la file d'attente Pygame."""
-        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.quit()
@@ -65,9 +65,9 @@ class GameController:
             elif event.type == pygame.KEYDOWN:
                 self.handle_keydown(event.key)
 
-            #else: 
+            #else:
                 #self.model.nokey()
-                # Traite le cas ou on appui sur aucune touche 
+                # Traite le cas ou on appui sur aucune touche
 
     def handle_keydown(self, key: int) -> None:
         """Traite l'appui sur une touche spécifique en fonction de l'état actuel du jeu.

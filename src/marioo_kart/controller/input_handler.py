@@ -2,11 +2,11 @@ import pygame
 
 # Dictionnaire de correspondance entre les touches du clavier et les actions du jeu
 MAPPING = {
-    pygame.K_UP: "accelerate",
-    pygame.K_DOWN: "decelerate",
+    pygame.K_z: "accelerate",
+    pygame.K_s: "decelerate",
     pygame.K_LSHIFT: "brake",
-    pygame.K_RIGHT: "right",
-    pygame.K_LEFT: "left"
+    pygame.K_d: "right",
+    pygame.K_q: "left"
 }
 
 
