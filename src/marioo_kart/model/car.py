@@ -1,7 +1,10 @@
 import math
 import pygame
 from constants import (
-    CAR_ACCEL, CAR_SPEED_MAX, CAR_ANGULAR_ACCEL, CAR_BRAKE, CAR_WIDTH, CAR_HEIGHT, TILE_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH, CAR_ANGULAR_DECAY, CAR_SPEED_DECAY
+    CAR_ACCEL, CAR_SPEED_MAX, CAR_ANGULAR_ACCEL, CAR_BRAKE,
+    CAR_ANGULAR_DECAY, CAR_SPEED_DECAY, OVERDRIFT_WEIGHT,
+    CAR_WIDTH, CAR_HEIGHT,
+    TILE_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH, TileType, TERRAINS
 )
 
 
@@ -38,6 +41,22 @@ class Car:
         self.agl_speed: float = 0.0
         self.speed: pygame.Vector2 = pygame.Vector2(0.0, 0.0)
         self.sprite = self.build_sprite()
+        self.tiletype: TileType | None = TileType.ROUTE
+
+    def decay2rate(scalar, decay):
+        """
+            Fonction d'aide pour réduire linéairement une valeur à 0 sous forme de facteur
+        Paramètres
+        --------
+        scalar: float
+            Valeur visée
+        decay: float
+            Valeur à soustraire 
+        """
+        if scalar <= decay:
+            return 0
+        else:
+            return (scalar - decay) / scalar
 
     def accelerate(self, forward=True) -> None:
         """Modifie la vitesse de la voiture pour l'accélérer ou la faire reculer
@@ -49,24 +68,24 @@ class Car:
         """
         rad = math.radians(self.angle)
         forward_vector = pygame.Vector2(math.sin(rad), -math.cos(rad))
+        terrain = TERRAINS[self.tiletype]
 
         # Si l'utilisateur ne fait rien
         if forward is None:
-            self.speed.x /= CAR_SPEED_DECAY
-            self.speed.y /= CAR_SPEED_DECAY
-            if self.speed.magnitude() < 1e-3:
-                self.speed = pygame.Vector2(0.0, 0.0)
+            norm = self.speed.magnitude()
+            self.speed.x *= Car.decay2rate(norm, CAR_SPEED_DECAY)
+            self.speed.y *= Car.decay2rate(norm, CAR_SPEED_DECAY)
         elif forward:
-            self.speed += CAR_ACCEL * forward_vector
+            self.speed += CAR_ACCEL * forward_vector * terrain.traction
         else:
-            self.speed -= CAR_ACCEL * forward_vector
+            self.speed -= CAR_ACCEL * forward_vector * terrain.traction
 
         if self.speed.length_squared() > 0:
             self.speed.clamp_magnitude_ip(CAR_SPEED_MAX)
 
     def steering(self, clockwise=True) -> None:
         if clockwise is None:
-            self.agl_speed /= CAR_ANGULAR_DECAY
+            self.agl_speed *= Car.decay2rate(self.agl_speed, CAR_ANGULAR_DECAY)
         elif clockwise:
             self.agl_speed += CAR_ANGULAR_ACCEL
         else:
@@ -76,35 +95,32 @@ class Car:
         """
             Applique les freins pour réduire la vitesse de la voiture
         """
-        self.speed /= CAR_BRAKE
+        terrain = TERRAINS[self.tiletype]
 
-    def update_position(self) -> None:
+        norm = self.speed.magnitude()
+        self.speed.x *= Car.decay2rate(norm, CAR_BRAKE * terrain.traction)
+        self.speed.y *= Car.decay2rate(norm, CAR_BRAKE * terrain.traction)
+
+    def update_position(self, tiletype: TileType) -> None:
         """
             Met à jour la position verticale de la voiture en fonction de sa vitesse actuelle
         """
         rad = math.radians(self.angle)
-        forward= pygame.Vector2(math.sin(rad), -math.cos(rad))
+        forward = pygame.Vector2(math.sin(rad), -math.cos(rad))
         right = pygame.Vector2(math.sin(rad - (math.pi / 2.0)), -math.cos(rad - (math.pi / 2.0)))
 
         v_forward = self.speed.dot(forward)
         v_right = self.speed.dot(right)
 
-        ## A SORTIR
-        ## Adhérent
-        # lateral_grip = 0.3
-        # drift_threshold = 2.2
-        # snap_threshold = 0.1
-        ## Glissant
-        lateral_grip = 0.03
-        drift_threshold = 0.22
-        snap_threshold = 0.01
-        ##
+        self.tiletype = tiletype
+        terrain = TERRAINS[self.tiletype]
 
-        if abs(v_right) <= snap_threshold:
+        # Dérapage
+        if abs(v_right) <= terrain.drift_threshold:
             v_right = 0.0
         else:
-            overdrift = max(0.0, abs(v_right) - drift_threshold)
-            reduced_grip = lateral_grip / (1.0 + 0.25 * overdrift)
+            overdrift = max(0.0, abs(v_right) - terrain.drift_threshold)
+            reduced_grip = terrain.lat_grip / (1.0 + OVERDRIFT_WEIGHT * overdrift)
             v_right *= (1.0 - reduced_grip)
 
         self.speed = forward * v_forward + right * v_right
@@ -113,6 +129,7 @@ class Car:
         self.x += self.speed.x
         self.y += self.speed.y
 
+        # Collisions
         _, bounds = self.get_rotated_sprite()
         if bounds.x < 0:
             self.x = bounds.w / 2

@@ -7,14 +7,14 @@ GRID_COLS = 16
 GRID_ROWS = 12
 
 CAR_ACCEL = 0.1
-CAR_SPEED_MAX = 7.07
-CAR_SPEED_DECAY = 1.01
+CAR_SPEED_MAX = 9
+CAR_SPEED_DECAY = 0.1
 CAR_ANGULAR_ACCEL = 0.1
-CAR_ANGULAR_DECAY = 2
-CAR_BRAKE = 1.2
+CAR_ANGULAR_DECAY = 0.5
+CAR_BRAKE = 0.4
 CAR_WIDTH = 30
 CAR_HEIGHT = 50
-
+OVERDRIFT_WEIGHT = 0.2
 
 class GameState:
     """Définit les différents états possibles du jeu
@@ -39,8 +39,30 @@ COLOR_ACCENT = (255, 200, 0)
 COLOR_PANEL = (30, 30, 50)
 COLOR_PANEL_BORDER = (60, 60, 100)
 
-# Couleur du premier circuit 
-C1_COLOR = (80, 80, 20)
+class TileType:
+    ROUTE = "ROUTE"
+    GLACE = "GLACE"
 
-# Couleur du deuxieme circuit 
-C2_COLOR = (30, 30, 100)
+class Terrain:
+    def __init__(self, color, traction, lat_grip, drift_threshold):
+        self.color = color
+        self.traction = traction
+        self.lat_grip = lat_grip
+        self.drift_threshold = drift_threshold
+
+TERRAINS = {
+    "ROUTE":
+        Terrain(
+            color = (127, 127, 127),
+            traction = 2,
+            lat_grip = 0.3,
+            drift_threshold = 2.2,
+        ),
+    "GLACE":
+        Terrain(
+            color = (0, 0, 255),
+            traction = 0.5,
+            lat_grip = 0.03,
+            drift_threshold = 0.22,
+        )
+}
