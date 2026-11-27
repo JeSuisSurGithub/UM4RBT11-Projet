@@ -85,6 +85,19 @@ class GameController:
         elif state == GameState.CIRCUIT:
             if key in [pygame.K_1, pygame.K_2]:
                 self.handle_menu_circuit(key)
+            if key == pygame.K_ESCAPE:
+                self.model.state = GameState.MENU
+
+        elif state == GameState.RACING:
+            if key == pygame.K_ESCAPE:
+                self.model.state = GameState.PAUSE
+
+        elif state == GameState.PAUSE:
+            if key == pygame.K_RETURN:
+                self.model.state = GameState.RACING
+            elif key == pygame.K_ESCAPE:
+                self.model.state = GameState.CIRCUIT
+
 
     def handle_menu_key(self, key: int) -> None:
         """Gère les entrées clavier lorsque le jeu se trouve dans le menu principal.
