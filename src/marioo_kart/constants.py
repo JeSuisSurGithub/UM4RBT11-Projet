@@ -1,5 +1,6 @@
 WINDOW_WIDTH = 1024
 WINDOW_HEIGHT = 768
+WINDOW_CX = WINDOW_WIDTH // 2
 FPS = 60
 
 TILE_SIZE = 64
@@ -27,10 +28,13 @@ class GameState:
         Etat pour choisir le circuit
     RACING: str
         État correspondant à la course en cours
+    PAUSED: str
+        Etat de pause dans le jeu
     """
     MENU = "menu"
     CIRCUIT = "circuit"
     RACING = "racing"
+    PAUSE = "pause"
 
 
 COLOR_BG = (15, 15, 25)

@@ -1,6 +1,6 @@
 import pygame
 from constants import (
-    WINDOW_WIDTH, WINDOW_HEIGHT, TILE_SIZE,
+    WINDOW_WIDTH, WINDOW_HEIGHT, TILE_SIZE, WINDOW_CX,
     COLOR_BG, COLOR_TEXT, COLOR_ACCENT, COLOR_PANEL, COLOR_PANEL_BORDER,
     GameState
 )
@@ -46,7 +46,30 @@ class GameView:
 
         elif model.state == GameState.RACING:
             self._draw_racing(model)
+
+        elif model.state == GameState.PAUSE:
+            self._draw_pause(model)
         pygame.display.flip()
+
+    def _draw_drop_list(self, model: GameModel, options: list):
+        """Dessine une liste verticale de boutons d'options centrés à l'écran
+
+        Paramètres
+        --------
+        model: GameModel
+            Modèle contenant l'état actuel du jeu
+        options: list
+            Liste de tuples `(libellé, état_cible)` représentant chaque option
+        """
+        for i, (label, _) in enumerate(options):
+            y = 320 + i * 80
+            rect = pygame.Rect(WINDOW_CX - 140, y - 25, 280, 50)
+            pygame.draw.rect(self.screen, COLOR_PANEL, rect, border_radius=8)
+            pygame.draw.rect(self.screen, COLOR_PANEL_BORDER,
+                             rect, 2, border_radius=8)
+            text_surf = self.font.render(
+                label, True, COLOR_ACCENT if i == 0 else COLOR_TEXT)
+            self.screen.blit(text_surf, text_surf.get_rect(center=rect.center))
 
     def _draw_menu(self, model: GameModel) -> None:
         """Dessine le menu principal du jeu avec les options de navigation
@@ -56,23 +79,14 @@ class GameView:
         model: GameModel
             Modèle du jeu
         """
-        cx = WINDOW_WIDTH // 2
 
         title_surf = self.font.render(
             "Jeu de course 2D", True, COLOR_ACCENT)
-        self.screen.blit(title_surf, title_surf.get_rect(center=(cx, 160)))
+        self.screen.blit(title_surf, title_surf.get_rect(center=(WINDOW_CX, 160)))
 
         options = [("JOUER (Enter)", GameState.CIRCUIT),
                    ("QUITTER (Escape)", None)]
-        for i, (label, _) in enumerate(options):
-            y = 320 + i * 80
-            rect = pygame.Rect(cx - 140, y - 25, 280, 50)
-            pygame.draw.rect(self.screen, COLOR_PANEL, rect, border_radius=8)
-            pygame.draw.rect(self.screen, COLOR_PANEL_BORDER,
-                             rect, 2, border_radius=8)
-            text_surf = self.font.render(
-                label, True, COLOR_ACCENT if i == 0 else COLOR_TEXT)
-            self.screen.blit(text_surf, text_surf.get_rect(center=rect.center))
+        self._draw_drop_list(model, options)
 
     def _draw_circuit(self, model: GameModel) -> None: 
         cx = WINDOW_WIDTH // 2
@@ -89,16 +103,7 @@ class GameView:
 
         options = [("CIRCUIT 1 (Press 1)", GameState.RACING),
                    ("CIRCUIT 2 (Press 2)", GameState.RACING)]
-
-        for i, (label, _) in enumerate(options):
-            y = 320 + i * 80
-            rect = pygame.Rect(cx - 140, y - 25, 280, 50)
-            pygame.draw.rect(self.screen, COLOR_PANEL, rect, border_radius=8)
-            pygame.draw.rect(self.screen, COLOR_PANEL_BORDER,
-                                rect, 2, border_radius=8)
-            text_surf = self.font.render(
-                label, True, COLOR_ACCENT if i == 0 else COLOR_TEXT)
-            self.screen.blit(text_surf, text_surf.get_rect(center=rect.center))
+        self._draw_drop_list(model, options)
 
     def _draw_racing(self, model: GameModel) -> None:
         """Dessine la scène de course, incluant le circuit et la voiture
@@ -119,3 +124,27 @@ class GameView:
             return
         surf, rect = model.car.get_rotated_sprite()
         self.screen.blit(surf, rect)
+
+    def _draw_pause(self, model: GameModel):
+        """Dessine l'écran de pause superposé à la scène de course actuelle
+
+        Paramètres
+        --------
+        model: GameModel
+            Modèle du jeu contenant le circuit et la voiture
+        """
+        cx = WINDOW_WIDTH // 2
+        for row_idx, row in enumerate(model.circuit.grid):
+            for col_idx, tile in enumerate(row):
+                sprite = tile.get_sprite(TILE_SIZE)
+                self.screen.blit(
+                    sprite, (col_idx * TILE_SIZE, row_idx * TILE_SIZE))
+
+        if model.circuit is None:
+            return
+        surf, rect = model.car.get_rotated_sprite()
+        self.screen.blit(surf, rect)
+        options = [("Continuer (Entrée)", GameState.RACING),
+                   ("Menu (échap)", GameState.CIRCUIT)]
+
+        self._draw_drop_list(model, options)
